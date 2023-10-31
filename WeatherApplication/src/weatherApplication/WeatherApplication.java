@@ -1,6 +1,8 @@
 package weatherApplication;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -67,10 +69,10 @@ public class WeatherApplication extends JFrame{
 		 weatherPanel.setBounds(30,310,715,170);
 		 motherPane.add(weatherPanel,2,0);
 		 
+		 //Nykyhetken säätilan näyttäminen
 		 
 		 
 		 //Luodaan hakukenttä.
-		 
 		 JTextField searchBar = new JTextField("");
 		 searchBar.setBounds(30,20,400,30);
 		 motherPane.add(searchBar,2,0);
@@ -78,6 +80,17 @@ public class WeatherApplication extends JFrame{
 		 //Luodaan etsi-nappi
 		 JButton searchButton = new JButton(imageLoader("src/assets/searchIcon.png"));
 		 searchButton.setBounds(430,20,30,30);
+		 searchButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String input = searchBar.getText();
+				
+				// TODO Auto-generated method stub
+				
+			}
+			 
+		 });
 		 motherPane.add(searchButton,2,0);
 		 
 		 add(motherPane);

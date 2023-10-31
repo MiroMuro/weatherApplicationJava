@@ -8,6 +8,7 @@ public class Launcher {
 			public void run() {
 				
 				new WeatherApplication().setVisible(true);
+				WeatherApplicationBackend.getWeatherData("Helsinki");
 				
 				
 			}
