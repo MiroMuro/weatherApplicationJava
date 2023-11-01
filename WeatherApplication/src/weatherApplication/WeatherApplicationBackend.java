@@ -3,6 +3,7 @@ package weatherApplication;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import org.json.simple.JSONArray;
@@ -12,7 +13,11 @@ import org.json.simple.parser.ParseException;
 
 public class WeatherApplicationBackend {
 	
-	 public static JSONObject getWeatherData(String locationName) {
+	 public static ArrayList<JSONObject> getWeatherData(String locationName) {
+		 
+		 //The arraylist of JSONObjects that holds current weather data, and data for the
+		 //upcoming 4 days.
+		 ArrayList<JSONObject> weatherDataObjects = new ArrayList();
 		 //Fetching of geodata with city name
 		 JSONArray locationData = (JSONArray) getCityLocationData(locationName);
 		 //JSONObject that holds latitude, longitude, country code and the population of the searched city
@@ -21,25 +26,23 @@ public class WeatherApplicationBackend {
 		 //
 		 double latitude = (double)cityData.get("latitude");
 		 double longitude = (double) cityData.get("longitude");
-		 System.out.println("latitude "+latitude+"longitude "+longitude);
+		 //City population.
 		 long population = (long) cityData.get("population");
 		 //Country code for fetching the image of the countrys flag.
 		 String CC = (String) cityData.get("country_code");
 		 
-		 //Api url that returns weather info based on the geolocation parameters.
+		 //Api url that returns weather info based on previously fetched latitude and longitude.
 		 String weatherUrlString = "https://api.open-meteo.com/v1/forecast?latitude="+latitude+"&longitude="+
 		 longitude+"&current=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&daily=weathercode,sunrise,sunset&timezone=Europe%2FMoscow";
 		 
-		 //Lets call the api and gather the results.
-		 
-		 
-		 
+		 //Lets call the weather api and gather the results.
 		 try {
 			HttpURLConnection conn = fetchApiResponse(weatherUrlString);
 			if(conn.getResponseCode()!= 200) {
 				 System.out.println("API fetch error.");
 				 return null;
 			 }else {
+				 //Fetched data is stored in this variable.
 				 StringBuilder fetchedJson = new StringBuilder();
 				 Scanner scanner = new Scanner(conn.getInputStream());
 				 
@@ -49,21 +52,24 @@ public class WeatherApplicationBackend {
 				 scanner.close();
 				 conn.disconnect();
 				 
+				 
 				 JSONParser parser = new JSONParser();
+				 //The string must be parsed to JSONObject.
 				 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(fetchedJson));
-				 System.out.println("current: "+resultsJsonObj.get("current"));
+				 //This JSONObject holds current hour weather data for the city name given as a parameter
+				 JSONObject currentData = (JSONObject)resultsJsonObj.get("current");
+				 JSONObject units = (JSONObject)resultsJsonObj.get("current_units");
+				 System.out.println("yksiköt"+units);
+				 weatherDataObjects.add(currentData);
+				 System.out.println(weatherDataObjects);
+				 return weatherDataObjects;
+				 
 			 }
 		} catch (IOException | ParseException e ) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
-		 
-		 
-		 
-		 
-		 
-		 return null;
 		 
 	 }
 	 
