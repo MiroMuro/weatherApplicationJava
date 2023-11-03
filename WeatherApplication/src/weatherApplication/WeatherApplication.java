@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -63,9 +65,9 @@ public class WeatherApplication extends JFrame{
 		 motherPane.add(weatherPanel,2,0);
 		 
 		 //Nykyhetken säätilan näyttäminen
-		 JLabel currentWeatherDataWeatherIcon = new JLabel(imageLoader("src/assets/sunny.png"));
-		 currentWeatherDataWeatherIcon.setBounds(30,130,150,150);
-		 motherPane.add(currentWeatherDataWeatherIcon,2,0);
+		 JLabel currentWeatherIcon = new JLabel(imageLoader("src/assets/sunny.png"));
+		 currentWeatherIcon.setBounds(30,130,150,150);
+		 motherPane.add(currentWeatherIcon,2,0);
 		 
 		 //Current temp. text field.
 		 JLabel degreesText = new JLabel("");
@@ -133,11 +135,16 @@ public class WeatherApplication extends JFrame{
 				degreesText.setText("<html>Temperature: </br>"+currentWeatherData.get("temperature_2m")+"°C </br> </html>");
 				humidity.setText(("<html>Air humidity: </br>"+currentWeatherData.get("relativehumidity_2m")+"% </html>"));
 				windspeed.setText("<html>Windspeed: </br>"+currentWeatherData.get("windspeed_10m")+" km/h");
-				
-				
-				
+				String weatherCondition = translateWeatherCode((long) currentWeatherData.get("weathercode"));
+				System.out.println(weatherCondition);
+				try {
+					currentWeatherIcon.setIcon(imageLoaderUrl(weatherCondition));
+				} catch (MalformedURLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				// TODO Auto-generated method stub
-				
+				searchBar.setText("");
 			}
 			 
 		 });
@@ -159,8 +166,92 @@ public class WeatherApplication extends JFrame{
 			System.out.println("Image not found.");
 		return null;
 	}	 
-}	private void setCurrentWeatherInformation (JSONObject weatherData) {
+}	
+	private ImageIcon imageLoaderUrl(String link) throws MalformedURLException {
+		try {
+			URL url = new URL(link);
+			BufferedImage img;
+			img = ImageIO.read(url);
+			ImageIcon icon = new ImageIcon(img);
+			return icon;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 		
+		
+	}
+	private String translateWeatherCode(long weatherCode) {
+	
+	switch((int)weatherCode) {
+		case 0:
+			return "https://img.icons8.com/color/144/sun--v1.png";
+			//Sunny
+		case 1:
+			return "https://img.icons8.com/fluency/144/weather.png";
+			//Mainly clear
+		case 2:
+			return "https://img.icons8.com/fluency/144/partly-cloudy-day.png";
+			//Partly cloudy
+		case 3:
+			return "https://img.icons8.com/fluency/144/clouds--v3.png";
+			//Overcast
+		case 45:
+		case 48:
+			return "https://img.icons8.com/emoji/144/fog.png";
+			//fog
+		case 51:
+		case 53:
+		case 55:
+			return "https://img.icons8.com/color/144/light-rain--v1.png";
+			//drizzle
+		case 56:
+		case 57:
+			return "https://img.icons8.com/fluency/144/sleet.png";
+			//freezing drizzle
+		case 61:
+			return "https://img.icons8.com/officel/144/light-rain.png";
+			//light rain
+		case 63:
+			return "https://img.icons8.com/office/144/moderate-rain.png";
+			//moderate rain
+		case 65:
+			return "https://img.icons8.com/color/144/downpour--v1.png";
+			//
+		case 66:
+		case 67:
+			return "https://img.icons8.com/badges/144/sleet.png";
+			//freezing rain.
+		case 71:
+		case 77:
+			return "https://img.icons8.com/color/144/light-snow--v1.png";
+			//light snow
+		case 73:
+			return "https://img.icons8.com/office/144/snow.png";
+			//moderate snow
+		case 75:
+			return "https://img.icons8.com/external-smashingstocks-basic-outline-smashing-stocks/144/external-Snowstorm-natural-disaster-icon-smashingstocks-basic-outline-smashing-stocks.png";
+			//heavy snow
+		case 80:
+		case 81:
+		case 82:
+			return "https://img.icons8.com/color/144/torrential-rain.png";
+			//rain shower
+		case 85:
+		case 86:
+			return "https://img.icons8.com/ios/144/snow.png";
+			//snow shower
+		case 95:
+		case 96:
+		case 99:
+			return "https://img.icons8.com/officel/144/cloud-lighting.png";
+			//thunder
+		
+			
+		}
+	return null;
+			
 		
 }
 	

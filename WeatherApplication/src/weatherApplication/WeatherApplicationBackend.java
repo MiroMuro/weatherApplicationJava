@@ -56,10 +56,9 @@ public class WeatherApplicationBackend {
 				 JSONParser parser = new JSONParser();
 				 //The string must be parsed to JSONObject.
 				 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(fetchedJson));
+				 System.out.println(resultsJsonObj);
 				 //This JSONObject holds current hour weather data for the city name given as a parameter
 				 JSONObject currentData = (JSONObject)resultsJsonObj.get("current");
-				 JSONObject units = (JSONObject)resultsJsonObj.get("current_units");
-				 System.out.println("yksiköt"+units);
 				 weatherDataObjects.add(currentData);
 				 System.out.println(weatherDataObjects);
 				 return weatherDataObjects;
