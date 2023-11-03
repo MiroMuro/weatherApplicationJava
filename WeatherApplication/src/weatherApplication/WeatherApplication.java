@@ -69,6 +69,13 @@ public class WeatherApplication extends JFrame{
 		 currentWeatherIcon.setBounds(30,130,150,150);
 		 motherPane.add(currentWeatherIcon,2,0);
 		 
+		 //Nykyisen kaupungin nimi
+		 JLabel cityName = new JLabel("");
+		 cityName.setBounds(50,00,150,150);
+		 cityName.setFont(new Font("Times New Roman", Font.ITALIC, 18));
+		 cityName.setForeground(Color.white);
+		 motherPane.add(cityName,2,0);
+		 
 		 //Current temp. text field.
 		 JLabel degreesText = new JLabel("");
 		 degreesText.setFont(new Font("Times New Roman", Font.BOLD, 18));
@@ -128,7 +135,11 @@ public class WeatherApplication extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String input = searchBar.getText();
-				ArrayList weatherData = WeatherApplicationBackend.getWeatherData(input);
+				if(input.replaceAll("\\s", "").length()<=0) {
+					return;
+				}
+				String Newinput = input.replaceAll(" ", "+");
+				ArrayList weatherData = WeatherApplicationBackend.getWeatherData(Newinput);
 				//This variable holds current weather data
 				currentWeatherData = (JSONObject) weatherData.get(0);
 				//Updating JLabels with current weather data.
@@ -136,9 +147,10 @@ public class WeatherApplication extends JFrame{
 				humidity.setText(("<html>Air humidity: </br>"+currentWeatherData.get("relativehumidity_2m")+"% </html>"));
 				windspeed.setText("<html>Windspeed: </br>"+currentWeatherData.get("windspeed_10m")+" km/h");
 				String weatherCondition = translateWeatherCode((long) currentWeatherData.get("weathercode"));
-				System.out.println(weatherCondition);
+				
 				try {
 					currentWeatherIcon.setIcon(imageLoaderUrl(weatherCondition));
+					cityName.setText(input);
 				} catch (MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

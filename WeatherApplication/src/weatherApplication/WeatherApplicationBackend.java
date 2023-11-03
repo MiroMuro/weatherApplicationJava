@@ -56,9 +56,9 @@ public class WeatherApplicationBackend {
 				 JSONParser parser = new JSONParser();
 				 //The string must be parsed to JSONObject.
 				 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(fetchedJson));
-				 System.out.println(resultsJsonObj);
 				 //This JSONObject holds current hour weather data for the city name given as a parameter
 				 JSONObject currentData = (JSONObject)resultsJsonObj.get("current");
+				 System.out.println("KURENEOOO"+resultsJsonObj);
 				 weatherDataObjects.add(currentData);
 				 System.out.println(weatherDataObjects);
 				 return weatherDataObjects;
@@ -73,6 +73,7 @@ public class WeatherApplicationBackend {
 	 }
 	 
 	 public static JSONArray getCityLocationData(String locationName)  {
+		 System.out.println("Funktiossa"+locationName);
 		 String urlString = "https://geocoding-api.open-meteo.com/v1/search?name="+
 				 			locationName+"&count=10&language=en&format=json";
 		 try{
