@@ -12,18 +12,18 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class WeatherApplicationBackend {
-	
+	 //This method is called from the application.
 	 public static ArrayList<JSONObject> getWeatherData(String locationName) {
 		 
-		 //The arraylist of JSONObjects that holds current weather data, and data for the
-		 //upcoming 4 days.
+		 //The arraylist of JSONObjects that shall hold current weather data, weather data for the
+		 //upcoming 4 days and city data.
 		 ArrayList<JSONObject> weatherDataObjects = new ArrayList();
-		 //Fetching of geodata with city name
+		 //First we must fetch latitude and longitude with our parameter given.
 		 JSONArray locationData = (JSONArray) getCityLocationData(locationName);
 		 //JSONObject that holds latitude, longitude, country code and the population of the searched city
 		 JSONObject cityData = (JSONObject)locationData.get(0);
 		 
-		 //
+		 //Geodata for the city.
 		 double latitude = (double)cityData.get("latitude");
 		 double longitude = (double) cityData.get("longitude");
 		 //City population.
@@ -31,18 +31,19 @@ public class WeatherApplicationBackend {
 		 //Country code for fetching the image of the countrys flag.
 		 String CC = (String) cityData.get("country_code");
 		 
-		 //Api url that returns weather info based on previously fetched latitude and longitude.
+		 //Url that returns weather info based on previously fetched latitude and longitude.
 		 String weatherUrlString = "https://api.open-meteo.com/v1/forecast?latitude="+latitude+"&longitude="+
 		 longitude+"&current=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&daily=weathercode,sunrise,sunset&timezone=Europe%2FMoscow";
 		 
-		 //Lets call the weather api and gather the results.
+		 //Second, lets call the weather api and gather the results.
 		 try {
 			HttpURLConnection conn = fetchApiResponse(weatherUrlString);
+			//response code 200 = success.
 			if(conn.getResponseCode()!= 200) {
 				 System.out.println("API fetch error.");
 				 return null;
 			 }else {
-				 //Fetched data is stored in this variable.
+				 //Read the data stream (JSON) from the connection with a scanner and create a new StringBuilder object out of it
 				 StringBuilder fetchedJson = new StringBuilder();
 				 Scanner scanner = new Scanner(conn.getInputStream());
 				 
@@ -58,9 +59,9 @@ public class WeatherApplicationBackend {
 				 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(fetchedJson));
 				 //This JSONObject holds current hour weather data for the city name given as a parameter
 				 JSONObject currentData = (JSONObject)resultsJsonObj.get("current");
-				 System.out.println("KURENEOOO"+resultsJsonObj);
+				 //We append the current weather and city data into an array that we return to the class handling the GUI.
 				 weatherDataObjects.add(currentData);
-				 System.out.println(weatherDataObjects);
+				 weatherDataObjects.add(cityData);
 				 return weatherDataObjects;
 				 
 			 }
@@ -73,7 +74,6 @@ public class WeatherApplicationBackend {
 	 }
 	 
 	 public static JSONArray getCityLocationData(String locationName)  {
-		 System.out.println("Funktiossa"+locationName);
 		 String urlString = "https://geocoding-api.open-meteo.com/v1/search?name="+
 				 			locationName+"&count=10&language=en&format=json";
 		 try{
@@ -83,6 +83,7 @@ public class WeatherApplicationBackend {
 				 System.out.println("Connection to the API failed!");
 				 return null;
 		 } else {
+			 //Read the data stream (JSON) from the connection with a scanner and create a new StringBuilder object out of it
 			 StringBuilder fetchedJson = new StringBuilder();
 			 Scanner scanner = new Scanner(conn.getInputStream());
 			 
@@ -92,6 +93,7 @@ public class WeatherApplicationBackend {
 			 conn.disconnect();
 			 scanner.close();
 			 
+			 //Parsing the stringbuilder object into an JSONArray for easier manipulation.
 			 JSONParser parser = new JSONParser();
 			 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(fetchedJson));
 			 JSONArray resultsJSON = (JSONArray) resultsJsonObj.get("results");
@@ -106,6 +108,8 @@ public class WeatherApplicationBackend {
 	 }
 	 
 	 private static HttpURLConnection fetchApiResponse(String urlString) {
+		 //Methdod for connecting to and url endpoint with GET-method.
+		 //Returns a connection whose input stream contains the data.
 		 try {
 			 URL url = new URL(urlString);
 			 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

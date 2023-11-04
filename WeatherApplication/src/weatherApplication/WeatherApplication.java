@@ -24,6 +24,7 @@ import org.json.simple.JSONObject;
 
 public class WeatherApplication extends JFrame{
 	private JSONObject currentWeatherData;
+	private JSONObject cityData;
 	public WeatherApplication(){
 		 super("Weather application");
 		 
@@ -71,10 +72,22 @@ public class WeatherApplication extends JFrame{
 		 
 		 //Nykyisen kaupungin nimi
 		 JLabel cityName = new JLabel("");
-		 cityName.setBounds(50,00,150,150);
+		 cityName.setBounds(120,20,250,100);
 		 cityName.setFont(new Font("Times New Roman", Font.ITALIC, 18));
 		 cityName.setForeground(Color.white);
 		 motherPane.add(cityName,2,0);
+		 
+		 //Population txt
+		 JLabel cityPopulation = new JLabel("");
+		 cityPopulation.setBounds(120,40,250,100);
+		 cityPopulation.setFont(new Font("Times New Roman", Font.ITALIC, 18));
+		 cityPopulation.setForeground(Color.white);
+		 motherPane.add(cityPopulation,2,0);
+		 
+		 //Current country flag icon
+		 JLabel flagIcon = new JLabel("");
+		 flagIcon.setBounds(50,50,64,64);
+		 motherPane.add(flagIcon,2,0);
 		 
 		 //Current temp. text field.
 		 JLabel degreesText = new JLabel("");
@@ -113,15 +126,6 @@ public class WeatherApplication extends JFrame{
 		 windspeedIcon.setBounds(180,230,50,50);
 		 motherPane.add(windspeedIcon,2,0);
 		 
-		 
-		 /*windspeed gif
-		 JLabel gifLabel = new JLabel("");
-		 ImageIcon gif = new ImageIcon("src/assets/newsun.gif");
-		 gifLabel.setIcon(gif);
-		 gifLabel.setBounds(100,100,100,100);
-		 motherPane.add(gifLabel,2,0);
-		 */
-		 
 		 //Luodaan hakukenttä.
 		 JTextField searchBar = new JTextField("");
 		 searchBar.setBounds(30,20,400,30);
@@ -135,27 +139,40 @@ public class WeatherApplication extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String input = searchBar.getText();
+				//Dont proceed if input is blank
 				if(input.replaceAll("\\s", "").length()<=0) {
 					return;
 				}
+				//Replace whitespace with plus sign in input for api. 
+				//for example new york = new+york. Keep the old one for the city name Jlabel
 				String Newinput = input.replaceAll(" ", "+");
 				ArrayList weatherData = WeatherApplicationBackend.getWeatherData(Newinput);
+				System.out.println(weatherData);
 				//This variable holds current weather data
 				currentWeatherData = (JSONObject) weatherData.get(0);
+				//This varialbe holds data about the city
+				cityData = (JSONObject) weatherData.get(1);
+				//Add spaces between zeroes for easier reading.
+				String population = String.format("%,d",cityData.get("population"));
 				//Updating JLabels with current weather data.
 				degreesText.setText("<html>Temperature: </br>"+currentWeatherData.get("temperature_2m")+"°C </br> </html>");
 				humidity.setText(("<html>Air humidity: </br>"+currentWeatherData.get("relativehumidity_2m")+"% </html>"));
 				windspeed.setText("<html>Windspeed: </br>"+currentWeatherData.get("windspeed_10m")+" km/h");
+				//Set city name and population
+				cityName.setText((String) cityData.get("country")+", "+(String) cityData.get("name"));
+				cityPopulation.setText("Population: "+population);
+				//Translate the weathercode into a weathercondition string and fetch and place the corresponding image.
 				String weatherCondition = translateWeatherCode((long) currentWeatherData.get("weathercode"));
-				
 				try {
 					currentWeatherIcon.setIcon(imageLoaderUrl(weatherCondition));
-					cityName.setText(input);
+					
+					flagIcon.setIcon(imageLoaderUrl("https://flagsapi.com/"+(String)cityData.get("country_code")+"/flat/64.png"));
 				} catch (MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				// TODO Auto-generated method stub
+				//Clear the search bar after every search.
 				searchBar.setText("");
 			}
 			 
@@ -167,7 +184,7 @@ public class WeatherApplication extends JFrame{
 		
 		 
 	 }
-	
+	//Used for downloading offline images
 	private ImageIcon imageLoader(String filepath){
 		
 		try {
@@ -178,7 +195,7 @@ public class WeatherApplication extends JFrame{
 			System.out.println("Image not found.");
 		return null;
 	}	 
-}	
+}		//Used for downloading images from the web.
 	private ImageIcon imageLoaderUrl(String link) throws MalformedURLException {
 		try {
 			URL url = new URL(link);
