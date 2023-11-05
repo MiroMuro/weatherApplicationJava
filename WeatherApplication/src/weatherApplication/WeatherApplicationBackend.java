@@ -33,7 +33,7 @@ public class WeatherApplicationBackend {
 		 
 		 //Url that returns weather info based on previously fetched latitude and longitude.
 		 String weatherUrlString = "https://api.open-meteo.com/v1/forecast?latitude="+latitude+"&longitude="+
-		 longitude+"&current=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&daily=weathercode,sunrise,sunset&timezone=Europe%2FMoscow";
+		 longitude+"&current=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&daily=weathercode,apparent_temperature_max,apparent_temperature_min,sunrise,sunset&timezone=Europe%2FMoscow";
 		 
 		 //Second, lets call the weather api and gather the results.
 		 try {
@@ -57,11 +57,14 @@ public class WeatherApplicationBackend {
 				 JSONParser parser = new JSONParser();
 				 //The string must be parsed to JSONObject.
 				 JSONObject resultsJsonObj = (JSONObject) parser.parse(String.valueOf(fetchedJson));
+				 
 				 //This JSONObject holds current hour weather data for the city name given as a parameter
 				 JSONObject currentData = (JSONObject)resultsJsonObj.get("current");
-				 //We append the current weather and city data into an array that we return to the class handling the GUI.
+				 JSONObject dailyData = (JSONObject)resultsJsonObj.get("daily");
+				 //We append the current weather, the weather for the next days and city data into an array that we return to the class handling the GUI.
 				 weatherDataObjects.add(currentData);
 				 weatherDataObjects.add(cityData);
+				 weatherDataObjects.add(dailyData);
 				 return weatherDataObjects;
 				 
 			 }

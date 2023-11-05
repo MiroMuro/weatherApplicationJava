@@ -1,5 +1,6 @@
 package weatherApplication;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -9,7 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -20,11 +25,22 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class WeatherApplication extends JFrame{
+	//This variable holds current weather data
 	private JSONObject currentWeatherData;
+	//This varialbe holds data about the city
 	private JSONObject cityData;
+	//This variable holds data for the upcoming weather,
+	private JSONObject upcomingWeatherData;
+	//Labels for displaying information about upcoming weather.
+	private ArrayList weekDays;
+	private JLabel first;
+	private JLabel second;
+	private JLabel third;
+	
 	public WeatherApplication(){
 		 super("Weather application");
 		 
@@ -32,12 +48,11 @@ public class WeatherApplication extends JFrame{
 		 //Alustetaan ikkuna
 		 setDefaultCloseOperation(EXIT_ON_CLOSE);
 		 
-		 setSize(800,550);
+		 setSize(900,650);
 		 
 		 setResizable(false);
 		 //Ikkuna aukeaa aina ruudun keskellä.
 		 setLocationRelativeTo(null);
-		 
 		
 		 GuiComponentsInit(); 
 	}
@@ -51,7 +66,7 @@ public class WeatherApplication extends JFrame{
 		 try {
 				BufferedImage tausta = ImageIO.read(new File("src/assets/bg.jpg"));
 				JLabel taustaLabel = new JLabel(new ImageIcon(tausta));
-				taustaLabel.setBounds(0,0,800,550);
+				taustaLabel.setBounds(0,0,900,650);
 				motherPane.add(taustaLabel,1,0);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -62,8 +77,9 @@ public class WeatherApplication extends JFrame{
 		 Color weatherPanelBackground = new Color(60,114,175,150);
 		 JPanel weatherPanel = new JPanel();
 		 weatherPanel.setBackground(weatherPanelBackground);
-		 weatherPanel.setBounds(30,310,715,170);
+		 weatherPanel.setBounds(30,310,815,270);
 		 motherPane.add(weatherPanel,2,0);
+		 
 		 
 		 //Nykyhetken säätilan näyttäminen
 		 JLabel currentWeatherIcon = new JLabel(imageLoader("src/assets/sunny.png"));
@@ -147,30 +163,32 @@ public class WeatherApplication extends JFrame{
 				//for example new york = new+york. Keep the old one for the city name Jlabel
 				String Newinput = input.replaceAll(" ", "+");
 				ArrayList weatherData = WeatherApplicationBackend.getWeatherData(Newinput);
-				System.out.println(weatherData);
-				//This variable holds current weather data
 				currentWeatherData = (JSONObject) weatherData.get(0);
-				//This varialbe holds data about the city
 				cityData = (JSONObject) weatherData.get(1);
-				//Add spaces between zeroes for easier reading.
-				String population = String.format("%,d",cityData.get("population"));
+				//This
+				upcomingWeatherData = (JSONObject) weatherData.get(2);
+				//JSONArray aids = (JSONArray)upcomingWeatherData.get("time");
+				
 				//Updating JLabels with current weather data.
 				degreesText.setText("<html>Temperature: </br>"+currentWeatherData.get("temperature_2m")+"°C </br> </html>");
 				humidity.setText(("<html>Air humidity: </br>"+currentWeatherData.get("relativehumidity_2m")+"% </html>"));
 				windspeed.setText("<html>Windspeed: </br>"+currentWeatherData.get("windspeed_10m")+" km/h");
 				//Set city name and population
 				cityName.setText((String) cityData.get("country")+", "+(String) cityData.get("name"));
+				//Add spaces between zeroes for easier reading.
+				String population = String.format("%,d",cityData.get("population"));
 				cityPopulation.setText("Population: "+population);
-				//Translate the weathercode into a weathercondition string and fetch and place the corresponding image.
+				
+				//Translate the weathercode into a string and fetch and place the corresponding image.
 				String weatherCondition = translateWeatherCode((long) currentWeatherData.get("weathercode"));
 				try {
 					currentWeatherIcon.setIcon(imageLoaderUrl(weatherCondition));
-					
 					flagIcon.setIcon(imageLoaderUrl("https://flagsapi.com/"+(String)cityData.get("country_code")+"/flat/64.png"));
 				} catch (MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				motherPane.add(displayWeatherForNextDays(upcomingWeatherData),2,0);
 				// TODO Auto-generated method stub
 				//Clear the search bar after every search.
 				searchBar.setText("");
@@ -210,6 +228,45 @@ public class WeatherApplication extends JFrame{
 		return null;
 		
 		
+	}
+	
+	private JPanel displayWeatherForNextDays(JSONObject data) {
+		JPanel panel = new JPanel();
+		Color weatherPanelBackground = new Color(60,114,175,150);
+		panel.setBackground(weatherPanelBackground);
+		panel.setBounds(30,310,815,270);
+		JSONArray days = (JSONArray) data.get("time");
+		panel.setLayout(null);
+		
+		JLabel firstDay = new JLabel(getWeekdayAsString((days.get(0).toString())));
+		firstDay.setBounds(120,0,150,50);
+		firstDay.setFont(new Font("Arial Black",Font.ITALIC,18));
+		firstDay.setForeground(Color.white);
+		
+		JLabel secondDay = new JLabel(getWeekdayAsString((days.get(1).toString())));
+		secondDay.setBounds(350,0,150,50);
+		secondDay.setFont(new Font("Arial Black",Font.ITALIC,18));
+		secondDay.setForeground(Color.white);
+		
+		JLabel thirdDay = new JLabel(getWeekdayAsString(days.get(3).toString()));
+		thirdDay.setBounds(580,0,150,50);
+		thirdDay.setFont(new Font("Arial Black", Font.ITALIC, 18));
+		thirdDay.setForeground(Color.white);
+		
+		panel.add(firstDay);
+		panel.add(secondDay);
+		panel.add(thirdDay);
+	
+		
+
+		
+		//System.out.println(getWeekdayAsString());
+		return panel;
+		
+	};
+	private String getWeekdayAsString (String datum) {
+		LocalDate date = LocalDate.parse(datum);
+		return date.getDayOfWeek().toString();	
 	}
 	private String translateWeatherCode(long weatherCode) {
 	
