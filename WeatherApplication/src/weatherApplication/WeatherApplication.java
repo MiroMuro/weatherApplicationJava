@@ -54,12 +54,9 @@ public class WeatherApplication extends JFrame{
 		 GuiComponentsInit(); 
 	}
 	private void GuiComponentsInit() {
-	  //Luodaan motherPaneeli, johon kaikki muut komponentit alustetaan
-		
+		//Luodaan motherPaneeli, johon kaikki muut komponentit alustetaan
 		JLayeredPane motherPane = new JLayeredPane();
-		
-		 
-		 
+		//Background pane.
 		 try {
 				BufferedImage tausta = ImageIO.read(new File("src/assets/bg.jpg"));
 				JLabel taustaLabel = new JLabel(new ImageIcon(tausta));
@@ -69,14 +66,7 @@ public class WeatherApplication extends JFrame{
 				e.printStackTrace();
 			}
 		 
-		 
-		 //Paneeli tulevan viikon sääennustetta varten.
-		 Color weatherPanelBackground = new Color(60,114,175,200);
-		 JPanel weatherPanel = new JPanel();
-		 weatherPanel.setBackground(weatherPanelBackground);
-		 weatherPanel.setBounds(30,310,815,270);
-		 motherPane.add(weatherPanel,2,0);
-		 
+
 		 
 		 //Nykyhetken säätilan näyttäminen
 		 JLabel currentWeatherIcon = new JLabel(imageLoader("src/assets/sunny.png"));
@@ -237,8 +227,11 @@ public class WeatherApplication extends JFrame{
 		
 		//Dates to be translated into weekdays.
 		JSONArray days = (JSONArray) data.get("time");
+		//Weathercodes to be translated into weather icon links
 		JSONArray weatherCodes = (JSONArray) data.get("weathercode");
-		System.out.println("Sääkoodi"+ weatherCodes);
+		JSONArray apparentTemperaturesMin = (JSONArray) data.get("apparent_temperature_min");
+		JSONArray apparentTemperatureMax = (JSONArray) data.get("apparent_temperature_max");
+		System.out.println(data);
 		panel.setLayout(null);
 		
 		//Weekday jlables.		
@@ -257,6 +250,26 @@ public class WeatherApplication extends JFrame{
 		thirdDay.setFont(new Font("Arial Black", Font.ITALIC, 18));
 		thirdDay.setForeground(Color.white);
 		
+		//Temperature labes for the next days
+		JLabel firstDayTemp = new JLabel(apparentTemperaturesMin.get(1)+"°C..   .."+apparentTemperatureMax.get(1)+"°C");
+		firstDayTemp.setBounds(110,200,120,50);
+		firstDayTemp.setFont(new Font("Arial Black",Font.BOLD,13));
+		firstDayTemp.setForeground(Color.white);
+		
+		JLabel secondDayTemp = new JLabel(apparentTemperaturesMin.get(2)+"°C..   .."+apparentTemperatureMax.get(2)+"°C");
+		secondDayTemp.setBounds(340,200,120,50);
+		secondDayTemp.setFont(new Font("Arial Black", Font.BOLD, 13));
+		secondDayTemp.setForeground(Color.white);
+		
+		JLabel thirdDayTemp = new JLabel(apparentTemperaturesMin.get(3)+"°C..   .."+apparentTemperatureMax.get(3)+"°C");
+		thirdDayTemp.setBounds(570,200,120,50);
+		thirdDayTemp.setFont(new Font("Arial Black", Font.BOLD, 13));
+		thirdDayTemp.setForeground(Color.white);
+		
+		
+		panel.add(secondDayTemp);
+		panel.add(firstDayTemp);
+		panel.add(thirdDayTemp);
 		try {
 			JLabel firstDayWeatherIcon = new JLabel((imageLoaderUrl(translateWeatherCode((long) weatherCodes.get(1)))));
 			firstDayWeatherIcon.setBounds(90,50,144,144);
@@ -268,6 +281,7 @@ public class WeatherApplication extends JFrame{
 			panel.add(firstDayWeatherIcon);
 			panel.add(secondDayWeatherIcon);
 			panel.add(thirdDayWeatherIcon);
+			
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -282,6 +296,7 @@ public class WeatherApplication extends JFrame{
 		LocalDate date = LocalDate.parse(datum);
 		return date.getDayOfWeek().toString();	
 	}
+	//Returns a corresponding image link to a weather code.
 	private String translateWeatherCode(long weatherCode) {
 	
 	switch((int)weatherCode) {
