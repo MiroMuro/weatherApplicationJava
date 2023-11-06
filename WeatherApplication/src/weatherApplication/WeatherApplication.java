@@ -37,9 +37,6 @@ public class WeatherApplication extends JFrame{
 	private JSONObject upcomingWeatherData;
 	//Labels for displaying information about upcoming weather.
 	private ArrayList weekDays;
-	private JLabel first;
-	private JLabel second;
-	private JLabel third;
 	
 	public WeatherApplication(){
 		 super("Weather application");
@@ -74,7 +71,7 @@ public class WeatherApplication extends JFrame{
 		 
 		 
 		 //Paneeli tulevan viikon sääennustetta varten.
-		 Color weatherPanelBackground = new Color(60,114,175,150);
+		 Color weatherPanelBackground = new Color(60,114,175,200);
 		 JPanel weatherPanel = new JPanel();
 		 weatherPanel.setBackground(weatherPanelBackground);
 		 weatherPanel.setBounds(30,310,815,270);
@@ -188,8 +185,8 @@ public class WeatherApplication extends JFrame{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				
 				motherPane.add(displayWeatherForNextDays(upcomingWeatherData),2,0);
-				// TODO Auto-generated method stub
 				//Clear the search bar after every search.
 				searchBar.setText("");
 			}
@@ -231,19 +228,26 @@ public class WeatherApplication extends JFrame{
 	}
 	
 	private JPanel displayWeatherForNextDays(JSONObject data) {
+		
+		//Return a panel with weather information for the next three days.
 		JPanel panel = new JPanel();
-		Color weatherPanelBackground = new Color(60,114,175,150);
+		Color weatherPanelBackground = new Color(60,114,175,200);
 		panel.setBackground(weatherPanelBackground);
 		panel.setBounds(30,310,815,270);
+		
+		//Dates to be translated into weekdays.
 		JSONArray days = (JSONArray) data.get("time");
+		JSONArray weatherCodes = (JSONArray) data.get("weathercode");
+		System.out.println("Sääkoodi"+ weatherCodes);
 		panel.setLayout(null);
 		
-		JLabel firstDay = new JLabel(getWeekdayAsString((days.get(0).toString())));
+		//Weekday jlables.		
+		JLabel firstDay = new JLabel(getWeekdayAsString((days.get(1).toString())));
 		firstDay.setBounds(120,0,150,50);
 		firstDay.setFont(new Font("Arial Black",Font.ITALIC,18));
 		firstDay.setForeground(Color.white);
 		
-		JLabel secondDay = new JLabel(getWeekdayAsString((days.get(1).toString())));
+		JLabel secondDay = new JLabel(getWeekdayAsString((days.get(2).toString())));
 		secondDay.setBounds(350,0,150,50);
 		secondDay.setFont(new Font("Arial Black",Font.ITALIC,18));
 		secondDay.setForeground(Color.white);
@@ -253,14 +257,24 @@ public class WeatherApplication extends JFrame{
 		thirdDay.setFont(new Font("Arial Black", Font.ITALIC, 18));
 		thirdDay.setForeground(Color.white);
 		
+		try {
+			JLabel firstDayWeatherIcon = new JLabel((imageLoaderUrl(translateWeatherCode((long) weatherCodes.get(1)))));
+			firstDayWeatherIcon.setBounds(90,50,144,144);
+			JLabel secondDayWeatherIcon = new JLabel((imageLoaderUrl(translateWeatherCode((long) weatherCodes.get(2)))));
+			secondDayWeatherIcon.setBounds(325,50,144,144);
+			JLabel thirdDayWeatherIcon = new JLabel((imageLoaderUrl(translateWeatherCode((long) weatherCodes.get(3)))));
+			thirdDayWeatherIcon.setBounds(565,50,144,144);
+			
+			panel.add(firstDayWeatherIcon);
+			panel.add(secondDayWeatherIcon);
+			panel.add(thirdDayWeatherIcon);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		panel.add(firstDay);
 		panel.add(secondDay);
 		panel.add(thirdDay);
-	
-		
-
-		
-		//System.out.println(getWeekdayAsString());
 		return panel;
 		
 	};

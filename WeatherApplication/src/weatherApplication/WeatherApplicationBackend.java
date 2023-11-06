@@ -36,7 +36,7 @@ public class WeatherApplicationBackend {
 		 longitude+"&current=temperature_2m,relativehumidity_2m,weathercode,windspeed_10m&daily=weathercode,apparent_temperature_max,apparent_temperature_min,sunrise,sunset&timezone=Europe%2FMoscow";
 		 
 		 //Second, lets call the weather api and gather the results.
-		 try {
+		 try {	
 			HttpURLConnection conn = fetchApiResponse(weatherUrlString);
 			//response code 200 = success.
 			if(conn.getResponseCode()!= 200) {
